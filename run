@@ -1,0 +1,110 @@
+#!/bin/bash
+# Maintainer: Alex Jia<ajia@example.com>  Jan 29, 2018
+
+VERSION="0.1"
+JOBS=
+CASE=
+RC=0
+LOG_DIR=./logs
+
+source ./libs/cmd.sh
+source ./utils/common.sh
+
+usage() {
+    echo "Usage: $(basename $0) OPTION... [CASE_FILE], e.g: ./run -j 3 tc.txt"
+    echo "OPTIONS:"
+    echo "  -j N, --jobs N    numbers of running jobs in parallel."
+    echo "                    default number of job is 1, test cases"
+    echo "                    will be run sequentially."
+    echo "  -h,   --help      print help information"
+    echo "  -v,   --version   print version information"
+    exit 1
+}
+
+get_opts() {
+    [[ $# -lt 1 ]] && usage
+
+    TEMP=$(getopt -o j:hv --long jobs:,help,version \
+        -n 'run.sh' -- "$@")
+
+    if [ $? -ne 0 ]; then
+        usage
+        exit 1
+    fi
+
+    eval set -- "$TEMP"
+
+    while true; do
+        case "$1" in
+            -j|--jobs)
+                JOBS=$2
+                if [[ ! $JOBS =~ ^([0-9]+) ]]; then
+                    echo "Please enter an integer for number of jobs: $JOBS"
+                    exit 1
+                fi
+                shift 2
+                ;;
+            -h|--help)
+                usage
+                ;;
+            -v|--version)
+                echo "run $VERSION"
+                break
+                ;;
+            --)
+                shift;
+                CASE="$@"
+                break
+                ;;
+            *)
+                echo "unknown parameter: $1"
+                usage
+                ;;
+        esac
+    done
+}
+
+# Execute all the cases specfied in command line.
+_test() {
+    [[ $# -lt 2 ]] && die "Usage: _test <parallel_jobs_num> <case1> <case2> ... <casen>"
+
+    _cmd_exists parallel
+    if [ $? -ne 0 ]; then
+        echo "Please install parallel tool for testing!"
+        exit 1
+    fi
+
+    if [ ! -d $LOG_DIR ]; then
+        mkdir -p $LOG_DIR
+    fi
+
+    # Default number of job is 1, it means
+    # test cases will be run sequentially
+    if [[ "X$JOBS" == "X" ]]; then
+        JOBS=1
+    fi
+
+    if [[ ! -f $CASE ]]; then
+        echo "Please provide a file of test case"
+	exit 1
+    fi
+    
+    _prun $JOBS $CASE
+    RC=$?
+
+    # To write test log for debugging later"
+    tc_log="$LOG_DIR/test-$(date +%Y-%m-%d-%T).log"
+    echo "parallel number of jobs: <$JOBS>, test case file: <$CASE>" >> $tc_log
+
+    if [ $RC -ne 0 ]; then
+	echo "Faild to run test cases in parallel!" >> $tc_log
+        exit 1
+    fi	
+
+    echo "Succeed to run test cases in parallel." >> $tc_log
+} 
+
+get_opts $@
+
+_test "$JOBS" "$CASE"
+

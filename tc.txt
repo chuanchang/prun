@@ -1,0 +1,3 @@
+sh ./cases/foo.sh
+sh ./cases/bar.sh
+sh ./cases/baz.sh
