@@ -11,7 +11,7 @@ source ./libs/cmd.sh
 source ./utils/common.sh
 
 usage() {
-    echo "Usage: $(basename $0) OPTION... [CASE_FILE], e.g: ./run -j 3 tc.txt"
+    echo "Usage: $(basename $0) OPTION... [CASE_FILE], e.g: ./prun -j 3 tc.txt"
     echo "OPTIONS:"
     echo "  -j N, --jobs N    numbers of running jobs in parallel."
     echo "                    default number of job is 1, test cases"
@@ -25,7 +25,7 @@ get_opts() {
     [[ $# -lt 1 ]] && usage
 
     TEMP=$(getopt -o j:hv --long jobs:,help,version \
-        -n 'run.sh' -- "$@")
+        -n 'prun' -- "$@")
 
     if [ $? -ne 0 ]; then
         usage
@@ -48,7 +48,7 @@ get_opts() {
                 usage
                 ;;
             -v|--version)
-                echo "run $VERSION"
+                echo "prun $VERSION"
                 break
                 ;;
             --)

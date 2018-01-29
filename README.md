@@ -16,11 +16,11 @@ Requirements
 
 How to use
 ~~~~~~~~~~~~
-  % ./run -h
-  % ./run tc.txt              
-  % ./run -j3 tc.txt
-  % ./run -j 3 tc.txt
-  % ./run --job 3 tc.txt
+  % ./prun -h
+  % ./prun tc.txt              
+  % ./prun -j3 tc.txt
+  % ./prun -j 3 tc.txt
+  % ./prun --job 3 tc.txt
 
 How to write test cases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
